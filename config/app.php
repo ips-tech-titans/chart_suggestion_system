@@ -123,6 +123,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'openai_key' => env('OPENAI_KEY','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'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
