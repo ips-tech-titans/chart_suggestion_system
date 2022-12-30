@@ -15,14 +15,19 @@ class FileHelper
     }
 
 
-    function getColumns($file, $delimiter = ','){
+    function getColumns($file, $delimiter = ',')
+    {
 
         if (($handle = fopen($file, "r")) === false) {
             die("can't open the file.");
         }
 
-       return $csv_headers = fgetcsv($handle, 4000, $delimiter);
+        $csv_headers = fgetcsv($handle, 4000, $delimiter);
 
+        $trimmed = $this->processHeader($csv_headers);
+
+        fclose($handle);
+        return $trimmed;
     }
 
     function csvtojson($file, $delimiter = ',')
@@ -32,23 +37,33 @@ class FileHelper
         }
 
         $csv_headers = fgetcsv($handle, 4000, $delimiter);
+        $trimmed_headers = $this->processHeader($csv_headers);
+
         $csv_json = array();
 
-
-    
-
         while ($row = fgetcsv($handle, 4000, $delimiter)) {
-            
-            $csv_json[] = array_combine($csv_headers, $row);
+            $csv_json[] = array_combine($trimmed_headers, $row);
         }
 
-        
-
         fclose($handle);
-        return json_encode($csv_json);
+        return $csv_json;
     }
 
+    public function processHeader($csv_headers)
+    {        
+        $trimmed = [];
+        foreach ($csv_headers as $ch) {
+            $trimmed_key = $this->createColumnKey($ch);
+            $trimmed[$trimmed_key] = $ch;
+        }
 
+        return $trimmed;
+    }
+
+    public function createColumnKey($string)
+    {
+        return strtolower(str_replace(" ", "", $string));
+    }
 
     public function get()
     {
