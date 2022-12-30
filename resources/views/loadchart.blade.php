@@ -34,14 +34,7 @@
                     </div>
                     <div class="col-6 col-md-offset-3 col-sm-offset-2">
                         <label>Select Table</label>
-                        <select class="js-select2-multi" multiple="multiple" id="tablenames">
-                            <option>Table 1</option>
-                            <option>Table 2</option>
-                            <option>Table 3</option>
-                            <option>Table 4</option>
-                            <option>Table 5</option>
-                            <option>Table 6</option>
-                            <option>Table 7</option>
+                        <select class="js-select2-multi"  id="tablenames">      <!-- multiple="multiple" -->
                         </select>
                     </div>
                 </div>

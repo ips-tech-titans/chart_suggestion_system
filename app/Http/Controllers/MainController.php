@@ -85,10 +85,57 @@ class MainController extends Controller
     }
 
     public function getDataFromSelectedTableswithDb(Request $request){
-        foreach($request->tables as $tablename){
-            $getdata[] = $this->getColumns($tablename);
+        $tables = array();
+        if(is_array($request->tables)){
+            $tables = $request->tables;
+        } else {
+            $tables = array($request->tables);
         }
-        return response()->json(['success' => false, 'data' => $getdata]);
+        foreach($tables as $tablename){
+            $columnnames = DB::select('show columns from ' . $tablename);
+            $getdatafromselectedfields = array();
+            foreach($columnnames as $key => $field){
+                /*if($field->Field != "id"){
+                    if($field->Type == 'timestamp'){
+                        // $selectedfieldnames[$tablename][] = ['columnname' => $field->Field, 'type'=>'timestamp'];
+                        $getdatafromselectedfields[] = $field->Field;
+                    }
+                    if(stristr($field->Type, 'int') == true){
+                        // $selectedfieldnames[$tablename][] = ['columnname' => $field->Field, 'type'=>'int'];
+                        $getdatafromselectedfields[] = $field->Field;
+                    }
+                    // if(stristr($field->Type, 'varchar') == true){
+                    //     // $selectedfieldnames[$tablename][] = ['columnname' => $field->Field, 'type'=>'varchar'];
+                    //     $getdatafromselectedfields[] = $field->Field;
+                    // }
+                    // if(stristr($field->Type, 'text') == true){
+                    //     // $selectedfieldnames[$tablename][] = ['columnname' => $field->Field, 'type'=>'text'];
+                    //     $getdatafromselectedfields[] = $field->Field;
+                    // }
+                    // $selectedfieldnames[$tablename][] = ['columnname' => $field->Field, 'type'=>'text'];
+                        // $getdatafromselectedfields[] = $field->Field;
+                }*/
+                $getdatafromselectedfields[] = $field->Field;
+            }
+            $string = implode("\n ", $getdatafromselectedfields);
+            $demochartdata = [["line","created_at","user_access_scope_id"],["bar","created_by","image_id"],["pie","email_verified_at","updated_at"]];
+            foreach($demochartdata as $chartdata){
+                $getdata[] = DB::table($tablename)->select($chartdata[1],$chartdata[2])->get()->toArray();
+            }
+            dd($getdata);
+            // $openAISuggestion  = $this->getType($string);
+            // $rawTypes = preg_split("/\r\n|\n|\r/", $openAISuggestion);
+            // $filtered_type = [];
+            // foreach ($rawTypes as $type) {
+            //     if ($type != '') {
+            //         preg_match_all('/\'(.*?)\'/', $type, $output_array);
+            //         if (isset($output_array[1]) && count($output_array[1]) == 3) {
+            //             array_push($filtered_type, $output_array[1]);
+            //         }
+            //     }
+            // }
+        }
+        return response()->json(['success' => false, 'data' => '', 'chart_suggestion' => $filtered_type]);
     }
 
     public function getcolumnsfromdatabase(Request $request){
@@ -150,6 +197,43 @@ class MainController extends Controller
             return ['success' => true, 'data' => $getCurlResponse['data']['choices'][0]['text']];
         } else {
             return ['success' => false, 'message' => $getCurlResponse['data']['error']['message']];
+        }
+    }
+
+    public function getType($string = '')
+    {   
+
+        $promptContent = "Which charts can be created using following data. \n $string.  format: type:'',x:'',y:''";
+        // $promptContent = "We have following $string data from csv. suggest all possible chart. format: chart_type:'',x-axis: '',y-axis: ''. \n Note:we are using only Line chart,Bar chart and Pie chart."; // format: chart_type:'',x-axis: '',y-axis: ''
+        // $promptContent = "We have following $string data from csv. Which charts will be best. format: chart_type:'',x-axis: '',y-axis: ''."; // format: chart_type:'',x-axis: '',y-axis: ''
+        // $promptContent = "Suggest Charts with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Our Data is: $string.";
+        // $promptContent = "Suggest various Chart with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Data is: \n customer \n product: \n orderdate \n amount. \n Note:we are using only Line chart,Bar chart and Pie chart.";
+        $engine = "text-davinci-003";
+        $api_key = "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";        
+
+
+        $fields = array(
+            "prompt" => $promptContent,
+            "temperature" => 0,
+            "max_tokens" => 500,
+            "top_p" => 1,
+            "n" => 1,
+            "frequency_penalty" => 0,
+            "presence_penalty" => 0
+        );
+
+        $url = "https://api.openai.com/v1/engines/" . $engine . "/completions";
+        $headers = array("authorization: Bearer " . $api_key, "content-type: application/json");
+        $curlrequest = new CurlRequests();
+        $getCurlResponse = $curlrequest->curlRequests($url, $headers, $fields, "POST");
+
+        if (isset($getCurlResponse['data']) && isset($getCurlResponse['data']['choices'])) {            
+            // echo "<pre>";
+            // print_r($getCurlResponse['data']['choices'][0]['text']);
+            // exit();
+            return $getCurlResponse['data']['choices'][0]['text'];
+        } else {
+            print_r($getCurlResponse['data']['error']['message']);
         }
     }
 }
