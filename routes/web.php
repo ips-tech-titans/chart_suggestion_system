@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,4 +18,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
 Route::get('/maincall', 'App\Http\Controllers\MainController@main')->name('maincall');
+
+Route::controller(ChartController::class)->group(function () {
+    Route::get('/index', 'index');
+});
