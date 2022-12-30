@@ -3,14 +3,14 @@
     Highcharts.chart('lineChart', {
         yAxis: {
             title: {
-                text: 'Number of Employees'
+                text: ''
             }
         },
         xAxis: {
             categories: @json($labels),
         },
         series: [{
-            name: 'Installation & Developers',
+            name: '',
             data: @json($datasets)
         }],
     });
