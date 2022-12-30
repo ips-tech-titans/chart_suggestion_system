@@ -91,6 +91,21 @@
                 }
             });
         });
+
+        $("#tablenames").on("change", function(){
+            let database = $("#selected_database").val();
+            let tables = $(this).val();
+            console.log(tables);
+            var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+            $.ajax({
+                url: "{{route('getDataFromSelectedTableswithDb')}}",
+                dataType: 'JSON',
+                type: "POST",
+                data:{'_token': CSRF_TOKEN, 'database':database, 'tables':tables},
+                success: function (response) {
+                }
+            });
+        });
     });
 
     function getDataFromSelectedDB(){

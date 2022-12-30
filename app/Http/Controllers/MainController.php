@@ -84,6 +84,13 @@ class MainController extends Controller
         // }
     }
 
+    public function getDataFromSelectedTableswithDb(Request $request){
+        foreach($request->tables as $tablename){
+            $getdata[] = $this->getColumns($tablename);
+        }
+        return response()->json(['success' => false, 'data' => $getdata]);
+    }
+
     public function getcolumnsfromdatabase(Request $request){
         $columnnames = DB::select('show columns from ' . $request->database);
         return response()->json(['success' => true, 'data' => $columnnames]);
@@ -112,23 +119,11 @@ class MainController extends Controller
                 //     $getdatafromselectedfields[] = $field->Field;
                 // }
                 // $selectedfieldnames[$tablename][] = ['columnname' => $field->Field, 'type'=>'text'];
-                    // $getdatafromselectedfields[] = $field->Field;
+                    $getdatafromselectedfields[] = $field->Field;
             }
         }
-        $tableData = DB::table($table_name)->first();
-        $temp_a = [];
-        
-        if(!empty($tableData)){
-            foreach ($tableData as $colName => $colData) {
-                if(in_array($colName, $getdatafromselectedfields)){
-                    if(!empty($colData)){
-                        $temp_a['tablename'] = $table_name;
-                        $temp_a['data'][$colName] = $colData;
-                    }
-                }
-            }
-        }
-        return $temp_a;
+        $tableData = DB::table($table_name)->get();
+        return $tableData;
     }
 
     public function senddatatoopenai($tables_data)
