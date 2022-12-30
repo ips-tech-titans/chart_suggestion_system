@@ -85,10 +85,93 @@ class MainController extends Controller
     }
 
     public function getDataFromSelectedTableswithDb(Request $request){
+
+        $table = DB::select('SHOW TABLES');
+        $database = array_map('current',$table);
+      //  dd($request->all());
+     
+        $emails = DB::table('users')->limit(49)->orderBy('id')->pluck('email');
+       /* foreach($request->tables as $tablename){
+           // $usercolumn =  DB::getSchemaBuilder()->getColumnListing($tablename);
+           
+            if(count($database)>0){
+            foreach ($database as $key => $user) {
+                if ($user != 'id' && $user != 'email_verified_at') {
+                    $db =  $database->getColumnType($tablename, $user);
+                    dd($db);
+
+                    if ($db == "integer" || $db == "datetime") {
+                        $store[] = $user;
+                    }
+                }
+            }
+        }       
+        }*/
+       
+
+
+
         foreach($request->tables as $tablename){
-            $getdata[] = $this->getColumns($tablename);
+            $string = 'describe'.' '.$tablename;
+            $data = DB::select($string);
+         //   dd($data);
+
+            foreach ($data as $key => $user) {
+                if ($user->Field != 'id' && $user->Field != 'email_verified_at') {
+                   
+                 
+
+                    if ($user->Type == "integer" || $user->Type == "timestamp") {
+                        $store[] = $user;
+                    }
+                }
+            }
+
+            
         }
-        return response()->json(['success' => false, 'data' => $getdata]);
+       // dd($store);
+
+        $chartArray["chart"] = array(
+			"type" => "line"
+		);
+		$chartArray["title"] = array(
+			"text" => "Yearly Data"			
+		);
+		$chartArray["credits"] = array(
+			"enabled" => false
+		);
+
+        $chartArray["yAxis"] = [
+			'title' => [
+				'text' => 'Years'
+			]
+		];
+		$chartArray["xAxis"] = array(
+			"name" => 'Years',
+			"categories" => $emails
+		);
+        $years = [];
+        foreach($store as $key => $data){
+           // dd($data);
+            $users = DB::table($request->tables[0])->limit(49)->pluck($data->Field);
+         //   dd($users);
+            if(count($users)>0){
+             foreach($users as $key => $newdata){
+              //  dd($newdata);
+                   $years[$data->Field][]  = (int)date("Y", strtotime($newdata));
+             }
+            }   
+         }
+         $series = [];
+          foreach($store as  $key => $data){
+                if(isset($years[$data->Field])){
+                    $series[] = array("name" => 'Registration Year', 'data' => $years[$data->Field], 'type' => 'column');
+
+                }
+         }
+
+        $chartArray["series"] = $series;
+        return response()->json(['success' => false, 'data' => $chartArray]);
     }
 
     public function getcolumnsfromdatabase(Request $request){
@@ -98,7 +181,7 @@ class MainController extends Controller
 
     public function getColumns($table_name)
     {
-        $columnnames = DB::select('show columns from ' . $table_name);
+        $columnnames = DB::select('show columns from ' . $table_name); 
         $getdatafromselectedfields = array();
         foreach($columnnames as $key => $field){
             if($field->Field != "id"){
