@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CSVController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,3 +25,9 @@ Route::post('/getalltablesdata', 'App\Http\Controllers\MainController@getDataFro
 Route::post('/getDataFromSelectedTableswithDb', 'App\Http\Controllers\MainController@getDataFromSelectedTableswithDb')->name('getDataFromSelectedTableswithDb');
 
 
+Route::get('/maincall', 'App\Http\Controllers\MainController@main')->name('maincall');
+
+Route::get('csv-file','App\Http\Controllers\CSVController@index');
+Route::post('csv-store','App\Http\Controllers\CSVController@store')->name('csv-store');
+
+Route::get('csv/{name}','App\Http\Controllers\CSVController@show')->name('csv.show');

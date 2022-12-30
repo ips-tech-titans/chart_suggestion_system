@@ -96,6 +96,7 @@
                 type: "POST",
                 data:{'_token': CSRF_TOKEN, 'database':database, 'tables':tables},
                 success: function (response) {
+                    $("#container").highcharts(response.chart_suggestion[0][0]);
                 }
             });
         });

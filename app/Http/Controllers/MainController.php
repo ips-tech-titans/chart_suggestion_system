@@ -91,7 +91,9 @@ class MainController extends Controller
         } else {
             $tables = array($request->tables);
         }
+        $allData=array();
         foreach($tables as $tablename){
+            $chartArray = array();
             $columnnames = DB::select('show columns from ' . $tablename);
             $getdatafromselectedfields = array();
             foreach($columnnames as $key => $field){
@@ -118,11 +120,35 @@ class MainController extends Controller
                 $getdatafromselectedfields[] = $field->Field;
             }
             $string = implode("\n ", $getdatafromselectedfields);
-            $demochartdata = [["line","created_at","user_access_scope_id"],["bar","created_by","image_id"],["pie","email_verified_at","updated_at"]];
+            $demochartdata = [["line","created_at","username"],["bar","created_by","status"],["pie","last_name","updated_at"]];
+            $final_charts_data=array();
             foreach($demochartdata as $chartdata){
-                $getdata[] = DB::table($tablename)->select($chartdata[1],$chartdata[2])->get()->toArray();
+                $xaxisdata = DB::table($tablename)->pluck($chartdata[1]);
+                $xaxis[] = $xaxisdata;
+                $chartArray["yAxis"] = [
+                    'title' => [
+                        'text' => 'Years'
+                    ]
+                ];
+                $chartArray["xAxis"] = array(
+                    "name" => 'Years',
+                    "categories" => $xaxis
+                );
+                $getdata = DB::table($tablename)->select($chartdata[1],$chartdata[2])->limit(49)->get();
+                foreach($getdata as $data){
+                    $series[] = array("name" => 'Data', 'data' => $data, 'type' => $chartdata[0]);
+                }
+                $chartArray["series"] = $series;
+                dd($chartArray);
+                // $final_charts_data[] = [
+                //     'type' => $chartdata[0],
+                //     'x_axis' => $x_axis,
+                //     'series' => $series
+                // ];
             }
-            dd($getdata);
+            // echo json_encode($final_charts_data);
+            // dd($final_charts_data);
+            
             // $openAISuggestion  = $this->getType($string);
             // $rawTypes = preg_split("/\r\n|\n|\r/", $openAISuggestion);
             // $filtered_type = [];
@@ -134,8 +160,10 @@ class MainController extends Controller
             //         }
             //     }
             // }
+
+            $allData[]=$chartArray;
         }
-        return response()->json(['success' => false, 'data' => '', 'chart_suggestion' => $filtered_type]);
+        return response()->json(['success' => false, 'data' => '', 'chart_suggestion' => $allData]);
     }
 
     public function getcolumnsfromdatabase(Request $request){
