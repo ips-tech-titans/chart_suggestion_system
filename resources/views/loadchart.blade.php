@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="{{asset('css/styles.css')}}">
     <title>Chart suggestions</title>
 </head>
 
@@ -23,15 +24,17 @@
                 <div class="row">
                     <div class="col-6 col-md-offset-3 col-sm-offset-2">
                         <label>Select Database</label>
-                        <select class="js-select2 js-states form-control">
-                            <option>School</option>
-                            <option>Hospital</option>
-                            <option>E-commerce</option>
+                        <select class="js-select2 js-states form-control" id="selected_database">
+                            @if(isset($databases))
+                            @foreach($databases as $database)
+                            <option value="{{$database->Database}}">{{$database->Database}}</option>
+                            @endforeach
+                            @endif
                         </select>
                     </div>
                     <div class="col-6 col-md-offset-3 col-sm-offset-2">
                         <label>Select Table</label>
-                        <select class="js-select2-multi" multiple="multiple">
+                        <select class="js-select2-multi" multiple="multiple" id="tablenames">
                             <option>Table 1</option>
                             <option>Table 2</option>
                             <option>Table 3</option>
@@ -57,14 +60,60 @@
     </section>
  
 </body>
-<script src="js/jquery.min.js"></script>
-<script src="js/bootstrap.bundle.min.js"></script>
-<script src="js/popper.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
+<script src="{{asset('js/jquery.min.js')}}"></script>
+<script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
+<script src="{{asset('js/popper.min.js')}}"></script>
+<script src="{{asset('js/bootstrap.min.js')}}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.full.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src="js/chartcustom.js"></script>
-<script src="js/custom.js"></script>
+<script src="{{asset('js/chartcustom.js')}}"></script>
+<script src="{{asset('js/custom.js')}}"></script>
 
+<script>
+    $( document ).ready(function() {
+        getDataFromSelectedDB();
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            }
+        });
+        $("#selected_database").on("change", function(){
+            let database = $(this).val();
+            var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+            $.ajax({
+                url: "{{route('setdatabase')}}",
+                dataType: 'JSON',
+                type: "GET",
+                data:{'_token': CSRF_TOKEN, 'database':database},
+                success: function (response) {
+                    getDataFromSelectedDB();
+                }
+            });
+        });
+    });
+
+    function getDataFromSelectedDB(){
+        var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+        $.ajax({
+            url: "{{route('getalltables')}}",
+            dataType: 'JSON',
+            type: "GET",
+            success: function (response) {
+                $("#tablenames").html('');
+                console.log(response);
+                if(response.success){
+                    var html = "";
+                    $.each(response.data, function (key, val) {
+                        html +="<option>"+val+"</option>";
+                        $("#tablenames").append($('<option>', {value:val, text: val}));
+                    });
+                } else {
+
+                }
+                
+            }
+        });
+    }
+</script>
 </html>

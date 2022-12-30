@@ -11,15 +11,17 @@ class MainController extends Controller
 {
 
     public function loadchart(){
-        return view('loadchart');
+        $databases = DB::select('SHOW DATABASES');
+        return view('loadchart',['databases'=>$databases]);
     }
     public function setdatabase(Request $request){
         Cache::put('default', 'mysql');
         Cache::put('host', '127.0.0.1');
         Cache::put('port', '3306');
-        Cache::put('database', 'ipsadmin');
+        Cache::put('database', $request->database);
         Cache::put('username', 'root');
         Cache::put('password', '');
+        return response()->json(['success' => true]);
     }
 
     public function getDataFromSelectedDB(){
@@ -37,7 +39,7 @@ class MainController extends Controller
 
     public function getDataFromSelectedTables(Request $request){
         $tables_array = array();
-        $tables = array('users','countries','dictionaries','products','roles');
+        $tables = [$request->database];
         foreach ($tables as $table) {
             // $table_name =  head($table);
             $table_name =  $table;
@@ -47,18 +49,18 @@ class MainController extends Controller
                 array_push($tables_array, [$temp_a]);
             }
         }
-        $getopenairesesponse = $this->senddatatoopenai($tables_array);
-        if($getopenairesesponse['success']){
-            $rawTypes = preg_split("/\r\n|\n|\r/", $getopenairesesponse['data']);
-            $filtered_type = [];
-            foreach ($rawTypes as $type) {
-                if ($type != '') {
-                    preg_match_all('/\'(.*?)\'/', $type, $output_array);
-                    if (isset($output_array[1])) {
-                        array_push($filtered_type, $output_array[1]);
-                    }
-                }
-            }
+        // $getopenairesesponse = $this->senddatatoopenai($tables_array);
+        // if($getopenairesesponse['success']){
+        //     $rawTypes = preg_split("/\r\n|\n|\r/", $getopenairesesponse['data']);
+        //     $filtered_type = [];
+        //     foreach ($rawTypes as $type) {
+        //         if ($type != '') {
+        //             preg_match_all('/\'(.*?)\'/', $type, $output_array);
+        //             if (isset($output_array[1])) {
+        //                 array_push($filtered_type, $output_array[1]);
+        //             }
+        //         }
+        //     }
             // $getopenairesesponsedata = json_decode($getopenairesesponsedata, true);
             // $getresponse = array();
             // if(count($filtered_type) > 0){
@@ -76,10 +78,15 @@ class MainController extends Controller
             //         }
             //     }
             // }
-            return response()->json(['success' => true, 'data' => $filtered_type]);
-        } else {
-            return response()->json(['success' => false, 'message' => $getopenairesesponse['message']]);
-        }
+            return response()->json(['success' => true, 'data' => $tables_array]);
+        // } else {
+        //     return response()->json(['success' => false, 'message' => $getopenairesesponse['message']]);
+        // }
+    }
+
+    public function getcolumnsfromdatabase(Request $request){
+        $columnnames = DB::select('show columns from ' . $request->database);
+        return response()->json(['success' => true, 'data' => $columnnames]);
     }
 
     public function getColumns($table_name)

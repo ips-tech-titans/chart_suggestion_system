@@ -17,8 +17,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/loadchart', 'App\Http\Controllers\MainController@loadchart')->name('loadchart');
-Route::get('/maincall', 'App\Http\Controllers\MainController@setdatabase')->name('maincall');
+Route::post('/getcolumnsfromdatabase', 'App\Http\Controllers\MainController@getcolumnsfromdatabase')->name('getcolumnsfromdatabase');
+Route::get('/setdatabase', 'App\Http\Controllers\MainController@setdatabase')->name('setdatabase');
 Route::get('/getalltables', 'App\Http\Controllers\MainController@getDataFromSelectedDB')->name('getalltables');
-Route::get('/getalltablesdata', 'App\Http\Controllers\MainController@getDataFromSelectedTables')->name('getalltablesdata');
+Route::post('/getalltablesdata', 'App\Http\Controllers\MainController@getDataFromSelectedTables')->name('getalltablesdata');
 
 
