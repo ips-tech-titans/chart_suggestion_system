@@ -84,7 +84,6 @@ class CSVController extends Controller
         }
 
         $string = implode("\n ", $csv_columns);
-        // dd($csv_columns);
 
         $openAISuggestion  = $this->openAi->getType($string);
 
@@ -92,15 +91,20 @@ class CSVController extends Controller
         $filtered_type = [];
 
         foreach ($rawTypes as $type) {
-            if ($type != '') {
-                preg_match_all('/\'(.*?)\'/', $type, $output_array);
-                if (isset($output_array[1]) && count($output_array[1]) == 3) {
-                    array_push($filtered_type, $output_array[1]);
+            try {
+                if ($type != '') {
+                    preg_match_all('/\'(.*?)\'/', $type, $output_array);
+                    if (isset($output_array[1]) && count($output_array[1]) == 3) {
+                        array_push($filtered_type, $output_array[1]);
+                    }
                 }
+            } catch (\Throwable $th) {
+                //throw $th;
             }
         }
 
         // Log::info($filtered_type);
+        // exit();
 
         // $filtered_type = [
         //     [
@@ -143,7 +147,6 @@ class CSVController extends Controller
 
                     $key_to_group_by = $this->fileHelper->createColumnKey($y);
                     if (!isset($key_to_group_by, $csv_columns)) {
-                        dd($type);
                         continue;
                     }
                     $key_to_group_by = $csv_columns[$key_to_group_by];
@@ -214,7 +217,7 @@ class CSVController extends Controller
 
                 if ($type == "line") {
 
-                    $filtered_data  = $data_collection->groupBy($key_to_group_by);                    
+                    $filtered_data  = $data_collection->groupBy($key_to_group_by);
 
                     if (count($filtered_data) > 30) {
                         $getFirst = $data_collection->first();
@@ -237,31 +240,33 @@ class CSVController extends Controller
                         'type' => $type,
                         'sub_type' => 'line',
                         'data_set' => $data_set,
-                        'labels' => $labels
+                        'labels' => $labels,
+                        'yAxis' => 'Y Label',
+                        'seriesName' => 'Series Name'
                     ];
                 }
 
                 if ($type == "scatter") {
 
                     $col_one = $this->fileHelper->createColumnKey($x);
-                    $col_two = $this->fileHelper->createColumnKey($y);                    
+                    $col_two = $this->fileHelper->createColumnKey($y);
 
                     $scatter_data = [];
                     foreach ($data_collection as $ddd) {
-                        $scatter_data[] = [(double)$ddd[$csv_columns[$col_one]],(double)$ddd[$csv_columns[$col_two]]];                        
+                        $scatter_data[] = [(float)$ddd[$csv_columns[$col_one]], (float)$ddd[$csv_columns[$col_two]]];
                     }
 
                     $final_charts_data[] = [
                         'type' => 'scatter',
                         'sub_type' => 'scatter',
-                        'dataset' => $scatter_data,                        
+                        'dataset' => $scatter_data,
                     ];
                 }
             } catch (\Throwable $th) {
 
                 dd($th);
             }
-        }        
+        }
 
 
         // dd($final_charts_data);

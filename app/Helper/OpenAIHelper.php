@@ -15,7 +15,7 @@ class OpenAIHelper
         // $promptContent = "Suggest Charts with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Our Data is: $string.";
         // $promptContent = "Suggest various Chart with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Data is: \n customer \n product: \n orderdate \n amount. \n Note:we are using only Line chart,Bar chart and Pie chart.";
         $engine = "text-davinci-003";
-        $api_key = "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";        
+        $api_key = config('app.OE');        
 
 
         $fields = array(

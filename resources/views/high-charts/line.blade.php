@@ -2,16 +2,19 @@
 <div id="lineChart" style="width:100%; height:400px;"></div>
 <script>
     Highcharts.chart('lineChart', {
+        title: {
+            text: '',          
+        },
         yAxis: {
             title: {
-                text: ''
+                text: '{{ $yAxis }}'
             }
         },
         xAxis: {
             categories: @json($labels),
         },
         series: [{
-            name: '',
+            name: '{{ $seriesName }}',
             data: @json($datasets)
         }],
     });

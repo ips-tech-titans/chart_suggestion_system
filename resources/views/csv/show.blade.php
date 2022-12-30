@@ -27,6 +27,8 @@
                         @include('high-charts.line', [
                             'labels' => $item['labels'],
                             'datasets' => $item['data_set'],
+                            'yAxis' => $item['yAxis'],
+                            'seriesName' => $item['seriesName'],
                         ])
                     </div>
                 @endif
