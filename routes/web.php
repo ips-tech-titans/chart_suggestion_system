@@ -16,3 +16,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/maincall', 'App\Http\Controllers\MainController@main')->name('maincall');
