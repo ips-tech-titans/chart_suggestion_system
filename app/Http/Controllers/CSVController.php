@@ -23,17 +23,13 @@ class CSVController extends Controller
     public function store(Request $request)
     {
 
-        // $this->validate($request, [
-        //     'file' => ['required', 'mimes:csv'],
-        // ]);
+        $this->validate($request, [
+            'file' => ['required', 'mimes:csv'],
+        ]);
 
-        // $file = $request->file('file');
-        // $path = $this->fileHelper->save($file);
+        $file = $request->file('file');
+        $path = $this->fileHelper->save($file);
 
-        // return $header = $this->fileHelper->getColumns($path);
-
-        $path = public_path('csv/') . "16723803271258117371.csv";
-        $data = $this->fileHelper->csvtojson($path);
         $name = pathinfo($path, PATHINFO_FILENAME);
         return redirect()->route('csv.show', $name);
     }
@@ -43,7 +39,7 @@ class CSVController extends Controller
 
         $path = public_path('csv/') . $fileName . ".csv";
         $data = $this->fileHelper->csvtojson($path);
-        
+
         dd($data);
         // $columns = 
         // return $fileName;
