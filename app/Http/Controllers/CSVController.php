@@ -66,6 +66,12 @@ class CSVController extends Controller
 
     public function show($fileName)
     {
+
+        // $data = [
+        //     'charts_data' => []
+        // ];
+        // return view('csv.show', $data);
+
         $csv_columns = Cache::get($fileName . 'columns');
         $csv_data = Cache::get($fileName . 'data');
 
@@ -94,13 +100,29 @@ class CSVController extends Controller
             }
         }
 
-        Log::info($filtered_type);
-
+        // Log::info($filtered_type);
 
         // $filtered_type = [
-        //     ["bar", "Job Title", "Number of Users"],
-        //     ["pie", "Sex", "Number of Users",],
-        //     ["line", "Date of Birth", "Number of Users",]
+        //     [
+        //         "line",
+        //         "name",
+        //         "height"
+        //     ],
+        //     [
+        //         "bar",
+        //         "name",
+        //         "weight"
+        //     ],
+        //     [
+        //         "scatter",
+        //         "height",
+        //         "weight"
+        //     ],
+        //     [
+        //         "pie",
+        //         "gender",
+        //         "id"
+        //     ]
         // ];
 
         $final_charts_data = [];
@@ -115,13 +137,13 @@ class CSVController extends Controller
             $key_to_group_by = $this->fileHelper->createColumnKey($x);
 
             try {
-                //code...
 
 
                 if (!isset($key_to_group_by, $csv_columns)) {
 
                     $key_to_group_by = $this->fileHelper->createColumnKey($y);
                     if (!isset($key_to_group_by, $csv_columns)) {
+                        dd($type);
                         continue;
                     }
                     $key_to_group_by = $csv_columns[$key_to_group_by];
@@ -142,7 +164,7 @@ class CSVController extends Controller
                             });
                         }
                     }
-                    
+
                     $labels = [];
                     $data_set = [];
                     foreach ($filtered_data as $key => $items) {
@@ -192,7 +214,7 @@ class CSVController extends Controller
 
                 if ($type == "line") {
 
-                    $filtered_data  = $data_collection->groupBy($key_to_group_by);
+                    $filtered_data  = $data_collection->groupBy($key_to_group_by);                    
 
                     if (count($filtered_data) > 30) {
                         $getFirst = $data_collection->first();
@@ -204,10 +226,6 @@ class CSVController extends Controller
                             });
                         }
                     }
-
-                    // dd($filtered_data);
-
-                    // dd($filtered_data);
 
                     $labels = [];
                     $data_set = [];
@@ -222,12 +240,31 @@ class CSVController extends Controller
                         'labels' => $labels
                     ];
                 }
+
+                if ($type == "scatter") {
+
+                    $col_one = $this->fileHelper->createColumnKey($x);
+                    $col_two = $this->fileHelper->createColumnKey($y);                    
+
+                    $scatter_data = [];
+                    foreach ($data_collection as $ddd) {
+                        $scatter_data[] = [(double)$ddd[$csv_columns[$col_one]],(double)$ddd[$csv_columns[$col_two]]];                        
+                    }
+
+                    $final_charts_data[] = [
+                        'type' => 'scatter',
+                        'sub_type' => 'scatter',
+                        'dataset' => $scatter_data,                        
+                    ];
+                }
             } catch (\Throwable $th) {
+
+                dd($th);
             }
-        }
+        }        
+
 
         // dd($final_charts_data);
-
         $data = [
             'charts_data' => $final_charts_data
         ];

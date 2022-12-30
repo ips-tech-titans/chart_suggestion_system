@@ -1,3 +1,4 @@
+<h2>Bar Chart</h2>
 <div id="barChart"></div>
 <script>
     Highcharts.chart('barChart', {

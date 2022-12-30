@@ -1,3 +1,4 @@
+<h2>Line Chart</h2>
 <div id="lineChart" style="width:100%; height:400px;"></div>
 <script>
     Highcharts.chart('lineChart', {

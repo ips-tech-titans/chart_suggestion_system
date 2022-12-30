@@ -1,3 +1,4 @@
+<h2>Pie Chart</h2>
 <div id="pieChart" style="width:100%; height:400px;"></div>
 <script>
     Highcharts.chart('pieChart', {

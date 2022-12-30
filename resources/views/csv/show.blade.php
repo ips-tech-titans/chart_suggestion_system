@@ -30,13 +30,19 @@
                         ])
                     </div>
                 @endif
+
+                @if ($item['type'] == 'scatter')
+                    
+                    <div class="col-sm-12 col-md-6">
+                        @include('high-charts.scatter', [
+                            'dataset' => $item['dataset'],
+                        ])
+                    </div>
+                @endif
             @endforeach
-            {{-- <div class="col-sm-12 col-md-6">
-                @include('high-charts.pie')
-            </div>
-            <div class="col-sm-12 col-md-6">
-                @include('high-charts.line')
-            </div> --}}
+
+
+
         </div>
     </div>
 @endsection
