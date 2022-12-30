@@ -111,16 +111,16 @@ class CSVController extends Controller
 
 
             $key_to_group_by = $this->fileHelper->createColumnKey($x);
-            
+
 
             if (!isset($key_to_group_by, $csv_columns)) {
-                
+
                 $key_to_group_by = $this->fileHelper->createColumnKey($y);
                 if (!isset($key_to_group_by, $csv_columns)) {
                     continue;
                 }
                 $key_to_group_by = $csv_columns[$key_to_group_by];
-            } else {                
+            } else {
                 $key_to_group_by = $csv_columns[$key_to_group_by];
             }
 
@@ -155,29 +155,41 @@ class CSVController extends Controller
                 }
                 $final_charts_data[] = [
                     'type' => $type,
-                    'sub_type' => 'bar',
+                    'sub_type' => 'pie',
                     'data_set' => $data_set
                 ];
             }
 
 
             if ($type == "line") {
-                // continue;
+
                 $filtered_data  = $data_collection->groupBy($key_to_group_by);
+                if (count($filtered_data) > 30) {
+                    $getFirst = $data_collection->first();
+                    $is_valid_date = $this->fileHelper->isValidDate($getFirst[$key_to_group_by]);
+
+                    if ($is_valid_date) {
+                        $filtered_data  = $data_collection->groupBy(function ($item, $key) use ($key_to_group_by) {
+                            return date('Y', strtotime($item[$key_to_group_by]));
+                        });
+                    }
+                }
 
                 // dd($filtered_data);
 
+                // dd($filtered_data);
+
+                $labels = [];
                 $data_set = [];
                 foreach ($filtered_data as $key => $items) {
-                    array_push($data_set, [
-                        'name' => $key,
-                        'y' => count($items)
-                    ]);
+                    array_push($labels, $key);
+                    array_push($data_set, count($items));                  
                 }
                 $final_charts_data[] = [
                     'type' => $type,
-                    'sub_type' => 'bar',
-                    'data_set' => $data_set
+                    'sub_type' => 'line',
+                    'data_set' => $data_set,
+                    'labels' => $labels
                 ];
             }
         }

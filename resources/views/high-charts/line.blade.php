@@ -7,11 +7,11 @@
             }
         },
         xAxis: {
-            categories: ["apple", "orange", "mango"],
+            categories: @json($labels),
         },
         series: [{
             name: 'Installation & Developers',
-            data: [10, 20, 15]
+            data: @json($datasets)
         }],
     });
 </script>
