@@ -10,6 +10,9 @@ use DB;
 class MainController extends Controller
 {
 
+    public function loadchart(){
+        return view('loadchart');
+    }
     public function setdatabase(Request $request){
         Cache::put('default', 'mysql');
         Cache::put('host', '127.0.0.1');
