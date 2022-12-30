@@ -15,7 +15,7 @@ class OpenAIHelper
         // $promptContent = "Suggest Charts with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Our Data is: $string.";
         // $promptContent = "Suggest various Chart with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Data is: \n customer \n product: \n orderdate \n amount. \n Note:we are using only Line chart,Bar chart and Pie chart.";
         $engine = "text-davinci-003";
-        $api_key = "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";        
+        $api_key = "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";        
 
 
         $fields = array(
@@ -39,6 +39,7 @@ class OpenAIHelper
             return $getCurlResponse['data']['choices'][0]['text'];
         } else {
             print_r($getCurlResponse['data']['error']['message']);
+            exit();
         }
     }
 

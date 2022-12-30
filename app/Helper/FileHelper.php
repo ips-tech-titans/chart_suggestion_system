@@ -50,7 +50,7 @@ class FileHelper
     }
 
     public function processHeader($csv_headers)
-    {        
+    {
         $trimmed = [];
         foreach ($csv_headers as $ch) {
             $trimmed_key = $this->createColumnKey($ch);
@@ -65,7 +65,11 @@ class FileHelper
         return strtolower(str_replace(" ", "", $string));
     }
 
-    public function get()
+    public function isValidDate($date)
     {
+        return (bool)strtotime($date);        
+
+        $timestamp = strtotime($date);
+        return $timestamp ? $date : null;
     }
 }
