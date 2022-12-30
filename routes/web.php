@@ -17,6 +17,11 @@ use App\Http\Controllers\ChartController;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/loadchart', 'App\Http\Controllers\MainController@loadchart')->name('loadchart');
+Route::get('/maincall', 'App\Http\Controllers\MainController@setdatabase')->name('maincall');
+Route::get('/getalltables', 'App\Http\Controllers\MainController@getDataFromSelectedDB')->name('getalltables');
+Route::get('/getalltablesdata', 'App\Http\Controllers\MainController@getDataFromSelectedTables')->name('getalltablesdata');
+
 
 
 Route::get('/maincall', 'App\Http\Controllers\MainController@main')->name('maincall');
