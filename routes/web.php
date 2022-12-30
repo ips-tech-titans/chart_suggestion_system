@@ -17,4 +17,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/maincall', 'App\Http\Controllers\MainController@main')->name('maincall');
+Route::get('/maincall', 'App\Http\Controllers\MainController@setdatabase')->name('maincall');
+Route::get('/getalltables', 'App\Http\Controllers\MainController@getDataFromSelectedDB')->name('getalltables');
+Route::get('/getalltablesdata', 'App\Http\Controllers\MainController@getDataFromSelectedTables')->name('getalltablesdata');
+
+
