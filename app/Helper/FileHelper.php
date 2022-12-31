@@ -32,6 +32,7 @@ class FileHelper
 
     function csvtojson($file, $delimiter = ',')
     {
+
         if (($handle = fopen($file, "r")) === false) {
             die("can't open the file.");
         }
@@ -42,7 +43,10 @@ class FileHelper
         $csv_json = array();
 
         while ($row = fgetcsv($handle, 4000, $delimiter)) {
-            $csv_json[] = array_combine($trimmed_headers, $row);
+            try {
+                $csv_json[] = array_combine($trimmed_headers, $row);
+            } catch (\Throwable $th) {
+            }
         }
 
         fclose($handle);
@@ -67,7 +71,7 @@ class FileHelper
 
     public function isValidDate($date)
     {
-        return (bool)strtotime($date);        
+        return (bool)strtotime($date);
 
         $timestamp = strtotime($date);
         return $timestamp ? $date : null;

@@ -7,14 +7,15 @@ use Illuminate\Support\Facades\Log;
 class OpenAIHelper
 {
     public function getType($string = '')
-    { 
-        $promptContent = "Which charts can be created using following data. \n $string. format: type:'',x:'',y:''";
+    {   
+
+        $promptContent = "Which charts can be created using following data. \n $string.  format: type:'',x:'',y:''. Note:we are using only Line chart,Bar chart, Scatter Chart and Pie chart.";
         // $promptContent = "We have following $string data from csv. suggest all possible chart. format: chart_type:'',x-axis: '',y-axis: ''. \n Note:we are using only Line chart,Bar chart and Pie chart."; // format: chart_type:'',x-axis: '',y-axis: ''
         // $promptContent = "We have following $string data from csv. Which charts will be best. format: chart_type:'',x-axis: '',y-axis: ''."; // format: chart_type:'',x-axis: '',y-axis: ''
         // $promptContent = "Suggest Charts with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Our Data is: $string.";
         // $promptContent = "Suggest various Chart with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Data is: \n customer \n product: \n orderdate \n amount. \n Note:we are using only Line chart,Bar chart and Pie chart.";
         $engine = "text-davinci-003";
-        $api_key = "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";        
+        $api_key = config('app.OE');        
 
 
         $fields = array(
