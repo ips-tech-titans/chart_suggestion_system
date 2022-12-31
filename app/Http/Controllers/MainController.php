@@ -92,6 +92,7 @@ class MainController extends Controller
             $tables = array($request->tables);
         }
         $allData=array();
+        $messages = array();
         foreach($tables as $tablename){
             $chartArray = array();
             $columnnames = DB::select('show columns from ' . $tablename);
@@ -120,50 +121,66 @@ class MainController extends Controller
                 $getdatafromselectedfields[] = $field->Field;
             }
             $string = implode("\n ", $getdatafromselectedfields);
-            $demochartdata = [["line","created_at","username"],["bar","created_by","status"],["pie","last_name","updated_at"]];
-            $final_charts_data=array();
-            foreach($demochartdata as $chartdata){
-                $xaxisdata = DB::table($tablename)->pluck($chartdata[1]);
-                $xaxis[] = $xaxisdata;
-                $chartArray["yAxis"] = [
-                    'title' => [
-                        'text' => 'Years'
-                    ]
-                ];
-                $chartArray["xAxis"] = array(
-                    "name" => 'Years',
-                    "categories" => $xaxis
-                );
-                $getdata = DB::table($tablename)->select($chartdata[1],$chartdata[2])->limit(49)->get();
-                foreach($getdata as $data){
-                    $series[] = array("name" => 'Data', 'data' => $data, 'type' => $chartdata[0]);
+            $openAISuggestion  = $this->getType($string);
+            $rawTypes = preg_split("/\r\n|\n|\r/", $openAISuggestion);
+            $filtered_type = [];
+            foreach ($rawTypes as $type) {
+                if ($type != '') {
+                    preg_match_all('/\'(.*?)\'/', $type, $output_array);
+                    if (isset($output_array[1]) && count($output_array[1]) == 3) {
+                        array_push($filtered_type, $output_array[1]);
+                    } else {
+
+                    }
                 }
-                $chartArray["series"] = $series;
-                dd($chartArray);
-                // $final_charts_data[] = [
-                //     'type' => $chartdata[0],
-                //     'x_axis' => $x_axis,
-                //     'series' => $series
-                // ];
+            }
+            if(is_array($filtered_type) && count($filtered_type)>0){
+                // $demochartdata = [["line","created_at","username"],["bar","created_by","status"],["pie","last_name","updated_at"]];
+                $final_charts_data=array();
+                foreach($filtered_type as $chartdata){
+                    $xaxisdata = DB::table($tablename)->pluck($chartdata[1]);
+                    $chartArray["credits"] = ['enabled' => false];
+                    $chartArray["yAxis"] = [
+                        'title' => [
+                            'text' => $chartdata[2]
+                        ]
+                    ];
+                    $chartArray["xAxis"] = array(
+                        "name" => $chartdata[1],
+                        "categories" => $xaxisdata
+                    );
+                    try{
+                    $getdata = DB::table($tablename)->limit(49)->pluck($chartdata[1],$chartdata[2])->toArray();
+                    $loadseriesdata = array();
+                    foreach($getdata as $key => $data){
+                        if (\DateTime::createFromFormat('Y-m-d H:i:s', $key) !== false) {
+                            $loadseriesdata[] = (int)date("Y", strtotime($key));
+                        } else {
+                            $loadseriesdata[] = $key;
+                        }
+                    }
+                    $series[] = array("name" => 'Data', 'data' => $loadseriesdata, 'type' => $chartdata[0]);
+                    $chartArray["series"] = $series;
+                    // $final_charts_data[] = [
+                    //     'type' => $chartdata[0],
+                    //     'x_axis' => $x_axis,
+                    //     'series' => $series
+                    // ];
+                    } catch(Exception $e){
+                        $loadseriesdata[] = $key;
+                    }
+                }
+                $messages[] = $openAISuggestion;
+            } else {
+                $messages[] = $openAISuggestion;
             }
             // echo json_encode($final_charts_data);
             // dd($final_charts_data);
             
-            // $openAISuggestion  = $this->getType($string);
-            // $rawTypes = preg_split("/\r\n|\n|\r/", $openAISuggestion);
-            // $filtered_type = [];
-            // foreach ($rawTypes as $type) {
-            //     if ($type != '') {
-            //         preg_match_all('/\'(.*?)\'/', $type, $output_array);
-            //         if (isset($output_array[1]) && count($output_array[1]) == 3) {
-            //             array_push($filtered_type, $output_array[1]);
-            //         }
-            //     }
-            // }
-
+            
             $allData[]=$chartArray;
         }
-        return response()->json(['success' => false, 'data' => '', 'chart_suggestion' => $allData]);
+        return response()->json(['success' => false, 'data' => '', 'chart_suggestion' => $allData, "messages" => $messages]);
     }
 
     public function getcolumnsfromdatabase(Request $request){
@@ -204,7 +221,7 @@ class MainController extends Controller
     public function senddatatoopenai($tables_data)
     {
         $json_ss = json_encode($tables_data);
-        $promptContent = "Suggest chart types in lowercase for the following data, including the recommended x and y axis in the format {{tablename:'', chart: '', x: '', y: ''}}: $json_ss";
+        $promptContent = "Which charts can be created using following data. \n $json_ss.  format: type:'',x:'',y:''";
         $engine = "text-davinci-003";
         $api_key = \Config::get('app.openai_key');
         $fields = array(
@@ -230,14 +247,13 @@ class MainController extends Controller
 
     public function getType($string = '')
     {   
-
         $promptContent = "Which charts can be created using following data. \n $string.  format: type:'',x:'',y:''";
         // $promptContent = "We have following $string data from csv. suggest all possible chart. format: chart_type:'',x-axis: '',y-axis: ''. \n Note:we are using only Line chart,Bar chart and Pie chart."; // format: chart_type:'',x-axis: '',y-axis: ''
         // $promptContent = "We have following $string data from csv. Which charts will be best. format: chart_type:'',x-axis: '',y-axis: ''."; // format: chart_type:'',x-axis: '',y-axis: ''
         // $promptContent = "Suggest Charts with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Our Data is: $string.";
         // $promptContent = "Suggest various Chart with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Data is: \n customer \n product: \n orderdate \n amount. \n Note:we are using only Line chart,Bar chart and Pie chart.";
         $engine = "text-davinci-003";
-        $api_key = "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";        
+        $api_key = "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";        
 
 
         $fields = array(
@@ -254,7 +270,6 @@ class MainController extends Controller
         $headers = array("authorization: Bearer " . $api_key, "content-type: application/json");
         $curlrequest = new CurlRequests();
         $getCurlResponse = $curlrequest->curlRequests($url, $headers, $fields, "POST");
-
         if (isset($getCurlResponse['data']) && isset($getCurlResponse['data']['choices'])) {            
             // echo "<pre>";
             // print_r($getCurlResponse['data']['choices'][0]['text']);
@@ -263,5 +278,47 @@ class MainController extends Controller
         } else {
             print_r($getCurlResponse['data']['error']['message']);
         }
+    }
+
+    public function convertToCSV($data, $options) {
+        
+        // setting the csv header
+        if (is_array($options) && isset($options['headers']) && is_array($options['headers'])) {
+            $headers = $options['headers'];
+        } else {
+            $headers = array(
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="ExportFileName.csv"'
+            );
+        }
+        
+        $output = '';
+        
+        // setting the first row of the csv if provided in options array
+        if (isset($options['firstRow']) && is_array($options['firstRow'])) {
+            $output .= implode(',', $options['firstRow']);
+            $output .= "\n"; // new line after the first line
+        }
+        
+        // setting the columns for the csv. if columns provided, then fetching the or else object keys
+        if (isset($options['columns']) && is_array($options['columns'])) {
+            $columns = $options['columns'];
+        } else {
+            $objectKeys = get_object_vars($data[0]);
+            $columns = array_keys($objectKeys);
+        }
+        
+        // populating the main output string
+        foreach ($data as $row) {
+            foreach ($columns as $column) {
+                $output .= str_replace(',', ';', $row->$column);
+                $output .= ',';
+            }
+            $output .= "\n";
+        }
+        
+        // calling the Response class make function inside my class to send the response.
+        // if our class is not a controller, this is required.
+        return Response::make($output, 200, $headers);
     }
 }

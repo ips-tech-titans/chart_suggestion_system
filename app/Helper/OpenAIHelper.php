@@ -7,15 +7,14 @@ use Illuminate\Support\Facades\Log;
 class OpenAIHelper
 {
     public function getType($string = '')
-    {   
-
-        $promptContent = "Which charts can be created using following data. \n $string.  format: type:'',x:'',y:''";
+    { 
+        $promptContent = "Which charts can be created using following data. \n $string. format: type:'',x:'',y:''";
         // $promptContent = "We have following $string data from csv. suggest all possible chart. format: chart_type:'',x-axis: '',y-axis: ''. \n Note:we are using only Line chart,Bar chart and Pie chart."; // format: chart_type:'',x-axis: '',y-axis: ''
         // $promptContent = "We have following $string data from csv. Which charts will be best. format: chart_type:'',x-axis: '',y-axis: ''."; // format: chart_type:'',x-axis: '',y-axis: ''
         // $promptContent = "Suggest Charts with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Our Data is: $string.";
         // $promptContent = "Suggest various Chart with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Data is: \n customer \n product: \n orderdate \n amount. \n Note:we are using only Line chart,Bar chart and Pie chart.";
         $engine = "text-davinci-003";
-        $api_key = "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";        
+        $api_key = "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";        
 
 
         $fields = array(
@@ -31,7 +30,6 @@ class OpenAIHelper
         $url = "https://api.openai.com/v1/engines/" . $engine . "/completions";
         $headers = array("authorization: Bearer " . $api_key, "content-type: application/json");
         $getCurlResponse = $this->curlRequests($url, $headers, $fields, "POST");
-
         if (isset($getCurlResponse['data']) && isset($getCurlResponse['data']['choices'])) {            
             // echo "<pre>";
             // print_r($getCurlResponse['data']['choices'][0]['text']);

@@ -38,6 +38,7 @@
                         </select>
                     </div>
                 </div>
+                <div id="chart_messages_from_ai"></div>
                 <div class="chart_type_select row">
                     <div id="container" class="mt-5" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                 </div>
@@ -96,7 +97,11 @@
                 type: "POST",
                 data:{'_token': CSRF_TOKEN, 'database':database, 'tables':tables},
                 success: function (response) {
-                    $("#container").highcharts(response.chart_suggestion[0][0]);
+                    $("#container").highcharts(response.chart_suggestion[0]);
+                    console.log(response);
+                    if(response.messages.length > 0) {
+                        $("#chart_messages_from_ai").html(response.messages[0]);
+                    }
                 }
             });
         });
@@ -113,10 +118,12 @@
                 console.log(response);
                 if(response.success){
                     var html = "";
-                    $.each(response.data, function (key, val) {
-                        html +="<option>"+val+"</option>";
-                        $("#tablenames").append($('<option>', {value:val, text: val}));
-                    });
+                    if(response.data.length > 0){
+                        $.each(response.data, function (key, val) {
+                            html +="<option>"+val+"</option>";
+                            $("#tablenames").append($('<option>', {value:val, text: val}));
+                        });
+                    }
                 } else {
 
                 }
