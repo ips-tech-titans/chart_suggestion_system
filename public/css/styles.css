@@ -321,6 +321,7 @@ body.fixed .header-fixed .header-limiter h1 {
   }
   .shiny:hover {
     box-shadow: 0 0 10px 0 #3498db inset, 0 0 10px 4px #3498db;
+    color: #005af0;
   }
 
 /* Button css end */

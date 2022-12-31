@@ -104,6 +104,7 @@ class CSVController extends Controller
         }
 
         Log::info($filtered_type);
+        Log::info($openAISuggestion);
         // exit();
 
         // $filtered_type = [
@@ -274,7 +275,8 @@ class CSVController extends Controller
 
         // dd($final_charts_data);
         $data = [
-            'charts_data' => $final_charts_data
+            'charts_data' => $final_charts_data,
+            'openAISuggestion' => $openAISuggestion
         ];
 
         return view('csv.show', $data);
