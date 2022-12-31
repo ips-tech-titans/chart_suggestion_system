@@ -31,7 +31,6 @@ class OpenAIHelper
         $url = "https://api.openai.com/v1/engines/" . $engine . "/completions";
         $headers = array("authorization: Bearer " . $api_key, "content-type: application/json");
         $getCurlResponse = $this->curlRequests($url, $headers, $fields, "POST");
-
         if (isset($getCurlResponse['data']) && isset($getCurlResponse['data']['choices'])) {            
             // echo "<pre>";
             // print_r($getCurlResponse['data']['choices'][0]['text']);

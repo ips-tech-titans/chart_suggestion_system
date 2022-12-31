@@ -79,12 +79,6 @@ var options = {
     //
     drilldown: {
         series: []
-<<<<<<< HEAD
-    },
-    credits: {
-        enabled: false
-=======
->>>>>>> 4887cf44b8b6eb09cc00e0d06e90a7d6ae984bf9
     }
 };
 
