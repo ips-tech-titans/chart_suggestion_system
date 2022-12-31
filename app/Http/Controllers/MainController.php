@@ -253,7 +253,7 @@ class MainController extends Controller
         // $promptContent = "Suggest Charts with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Our Data is: $string.";
         // $promptContent = "Suggest various Chart with X-axis and Y-axis in format: chart_type:'',x: '',y: ''. \n Data is: \n customer \n product: \n orderdate \n amount. \n Note:we are using only Line chart,Bar chart and Pie chart.";
         $engine = "text-davinci-003";
-        $api_key = "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";        
+        $api_key = config('app.openai_key');        
 
 
         $fields = array(
