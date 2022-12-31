@@ -103,7 +103,7 @@ class CSVController extends Controller
             }
         }
 
-        // Log::info($filtered_type);
+        Log::info($filtered_type);
         // exit();
 
         // $filtered_type = [
@@ -137,11 +137,9 @@ class CSVController extends Controller
 
             list($type, $x, $y) = $chart;
 
-
             $key_to_group_by = $this->fileHelper->createColumnKey($x);
 
             try {
-
 
                 if (!isset($key_to_group_by, $csv_columns)) {
 
@@ -150,8 +148,12 @@ class CSVController extends Controller
                         continue;
                     }
                     $key_to_group_by = $csv_columns[$key_to_group_by];
+                    $yAxisLabel = $key_to_group_by;
+                    $xAxisLabel = $x;
                 } else {
                     $key_to_group_by = $csv_columns[$key_to_group_by];
+                    $xAxisLabel = $key_to_group_by;
+                    $yAxisLabel = $y;
                 }
 
                 if ($type == 'bar') {
@@ -241,7 +243,8 @@ class CSVController extends Controller
                         'sub_type' => 'line',
                         'data_set' => $data_set,
                         'labels' => $labels,
-                        'yAxis' => 'Y Label',
+                        'yAxis' => $yAxisLabel,
+                        'xAxis' => $xAxisLabel,
                         'seriesName' => 'Series Name'
                     ];
                 }

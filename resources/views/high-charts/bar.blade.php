@@ -10,7 +10,7 @@
             crosshair: true
         },
         series: [{
-            name: 'Tokyo',
+            name: '',
             data: @json($datasets)
 
         }]

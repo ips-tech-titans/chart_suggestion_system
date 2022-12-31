@@ -1,4 +1,4 @@
-<h2>Sactter Chart</h2>
+<h2>Scatter Chart</h2>
 <div id="scatterChart"></div>
 <script>
     Highcharts.chart('scatterChart', {
