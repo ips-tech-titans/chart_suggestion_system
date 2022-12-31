@@ -25,11 +25,8 @@
                     <div class="col-6 col-md-offset-3 col-sm-offset-2">
                         <label>Select Database</label>
                         <select class="js-select2 js-states form-control" id="selected_database">
-                            @if(isset($databases))
-                            @foreach($databases as $database)
-                            <option value="{{$database->Database}}">{{$database->Database}}</option>
-                            @endforeach
-                            @endif
+                            <option value="">Select Database</option>
+                            <option value="hackathon_ecommerce">hackathon_ecommerce</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-offset-3 col-sm-offset-2">
