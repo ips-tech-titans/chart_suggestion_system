@@ -11,8 +11,8 @@ class MainController extends Controller
 {
 
     public function loadchart(){
-        // $databases = DB::select('SHOW DATABASES');
-        return view('loadchart');
+        $databases = DB::select('SHOW DATABASES');
+        return view('loadchart',['databases'=>$databases]);
     }
     public function setdatabase(Request $request){
         Cache::put('default', 'mysql');
