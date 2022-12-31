@@ -10,7 +10,7 @@
             <div class="row">
                 <div class="col-6 col-md-offset-3 col-sm-offset-2 text-center">
                     <button class="btn shiny col">
-                        <a href="{{ route('loadchart') }}" style="text-decoration: none;color:white;">Use SQL</a>
+                        <a href="{{ route('loadchart') }}" style="text-decoration: none;color:white;">Use Database</a>
                     </button>
                 </div>
                 <div class="col-6 col-md-offset-3 col-sm-offset-2 text-center">
